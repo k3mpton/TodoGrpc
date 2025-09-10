@@ -1,0 +1,16 @@
+version: v1 
+
+breaking: 
+  use: 
+    - FILE 
+    # прост проверяет как ты изменил protofile перед новой генерации в .go и показывает поля которые ты изменил
+
+lint: 
+  use: 
+    - DEFAULT
+    # кароче это просто стиль написания переменных и тд например ID - плохо, id - хорошо; UserId - плохо, user_id - хорошо
+
+deps:
+  - buf.build/googleapis/googleapis:main
+  # Это ВАЖНО! Скачивает Google API для работы behavior аннотаций
+  # Без этого твои [(google.api.field_behavior) = REQUIRED] не сработают!

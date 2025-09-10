@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+// package - определяет пространство имен для предотвращения конфликтов.
+// В Go это повлияет на структуру каталогов.
+package todo.v1;
+
+// Опции для генерации кода на Go.
+// Опционально, но очень рекомендуется для четкого контроля.
+option go_package = "github.com/k3mpton/ToDoList;todopb";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/api/field_behavior.proto";
+
+// Сервис TaskService содержит все методы для работы с задачами.
+service TaskService {
+  // Создает новую задачу.
+  rpc CreateTask (CreateTaskRequest) returns (CreateTaskResponse) {};
+  // Возвращает задачу по её ID.
+  rpc GetTask (GetTaskRequest) returns (GetTaskResponse) {};
+  // Возвращает список задач с поддержкой пагинации и фильтрации.
+  rpc ListTasks (ListTasksRequest) returns (ListTasksResponse) {};
+  // Полностью обновляет данные задачи (аналог PUT).
+  rpc UpdateTask (UpdateTaskRequest) returns (UpdateTaskResponse) {};
+  // Удаляет задачу по её ID.
+  rpc DeleteTask (DeleteTaskRequest) returns (google.protobuf.Empty) {};
+  // Специфичный метод для отметки задачи как выполненной.
+  // Это частичное обновление (аналог PATCH).
+  rpc MarkTaskAsDone (MarkTaskAsDoneRequest) returns (MarkTaskAsDoneResponse) {};
+}
+
+// Сущность "Задача" (Task).
+message Task {
+  // Уникальный идентификатор задачи. Только для чтения.
+  int64 id = 1;
+  // Заголовок задачи. Обязательное поле.
+  string title = 2 [(google.api.field_behavior) = REQUIRED]; // кароче это аннотация говорит что поле обязательное для заполненияж "Пришло ли значение в это поле?" и вернуть понятную ошибку InvalidArgument, если нет.
+  // Описание задачи. Необязательное поле.
+  string description = 3;
+  // Статус задачи.
+  bool status = 4;
+  // Срок выполнения задачи.
+  google.protobuf.Timestamp due_date = 5;
+  // ID пользователя-владельца задачи.
+  int64 user_id = 6;
+  // Временные метки создания и обновления. Только для чтения.
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// Перечисление возможных статусов задачи.
+// enum Status {
+//   STATUS_UNSPECIFIED = 0; // Всегда должно быть значение по умолчанию.
+//   STATUS_COMPLETED = 1;
+// }
+
+// --- Запросы и Ответы ---
+
+message CreateTaskRequest {
+  // Сама задача для создания. ID и временные метки игнорируются.
+  Task task = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CreateTaskResponse {
+  // Созданная задача с заполненными ID и временными метками.
+  Task task = 1;
+}
+
+message GetTaskRequest {
+  // ID задачи, которую нужно получить.
+  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 user_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetTaskResponse {
+  Task task = 1;
+}
+
+message ListTasksRequest {
+  // Параметры пагинации.
+  int32 page_size = 1;
+  int32 page_token = 2; // Простая реализация - номер страницы.
+
+  // Поля для фильтрации.
+  int64 user_id = 3; // Обязательно фильтровать по пользователю!
+  bool  status = 4; // Опциональный фильтр по статусу.
+  // Можно добавить фильтр по диапазону дат для due_date.
+}
+
+message ListTasksResponse {
+  // Список задач, подходящих под критерии.
+  repeated Task tasks = 1;
+  // Токен для получения следующей страницы.
+  // В более сложной реализации это может быть строковый токен.
+  int32 next_page_token = 2;
+}
+
+message UpdateTaskRequest {
+  // Задача с обновленными данными. Должен быть указан ID.
+  Task task = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateTaskResponse {
+  Task task = 1;
+}
+
+message DeleteTaskRequest {
+  // ID задачи, которую нужно удалить.
+  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Для DeleteTask используем google.protobuf.Empty для ответа.
+
+message MarkTaskAsDoneRequest {
+  // ID задачи, которую нужно отметить как выполненную.
+  int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MarkTaskAsDoneResponse {
+  // Обновленная задача со статусом STATUS_COMPLETED.
+  Task task = 1;
+}
