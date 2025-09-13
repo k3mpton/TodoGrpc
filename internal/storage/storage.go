@@ -137,11 +137,20 @@ func (s *Sql) DeleteTask(
 ) error {
 	const op = "storage.DeleteTask"
 
-	query := `delete from Tasks where task_id = $1 and user_id = $2`
-	_, err := s.db.Exec(query, task_id, user_id)
+	query := `delete from Tasks where id = $1 and user_id = $2`
+	r, err := s.db.Exec(query, task_id, user_id)
 
 	if err != nil {
 		return fmt.Errorf("%v: %v", op, err)
+	}
+
+	rows, err := r.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%v: %v", op, err)
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("%v: failed search your task((", op)
 	}
 
 	return nil
@@ -157,9 +166,9 @@ func (s *Sql) UpdateTask(
 	const op = "storage.UpdateTask"
 
 	query := `update Tasks
-	set title = $1, descript = $2
-	updated_at = CURRENT_TIMESTAMP where task_id = $3 and user_id = $4
-	 returning title, descript`
+	set title = $1, description = $2,
+	updated_at = Now() where id = $3 and user_id = $4
+	 returning title, description`
 
 	var updatedTitle, UpdatedDescription string
 	err := s.db.QueryRowContext(ctx, query, NewTitle,
@@ -176,8 +185,6 @@ func (s *Sql) CreateTask(
 	taskModel *todopb.Task,
 ) error {
 	const op = "storage.CreateTask"
-
-	fmt.Println("saddddddddddddddddddddddd")
 
 	query := `insert into 
 	tasks(title, description, status, due_date, user_id)
@@ -208,12 +215,17 @@ func (s *Sql) MarkTaskAsDone(
 	query := `
 		update Tasks 
 		set status = true
+		where user_id = $1 and id = $2
 	`
 
-	_, err := s.db.ExecContext(ctx, query)
+	r, err := s.db.ExecContext(ctx, query, user_id, task_id)
 	if err != nil {
 		return fmt.Errorf("%v: %v", op, err)
 	}
 
+	rows, _ := r.RowsAffected()
+	if rows == 0 {
+		return fmt.Errorf("%v: %v", op, "could not find user or task")
+	}
 	return nil
 }

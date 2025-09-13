@@ -107,6 +107,7 @@ message UpdateTaskResponse {
 message DeleteTaskRequest {
   // ID задачи, которую нужно удалить.
   int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 user_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Для DeleteTask используем google.protobuf.Empty для ответа.
@@ -114,6 +115,7 @@ message DeleteTaskRequest {
 message MarkTaskAsDoneRequest {
   // ID задачи, которую нужно отметить как выполненную.
   int64 id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 user_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message MarkTaskAsDoneResponse {

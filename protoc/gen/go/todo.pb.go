@@ -540,6 +540,7 @@ type DeleteTaskRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID задачи, которую нужно удалить.
 	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId        int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -581,10 +582,18 @@ func (x *DeleteTaskRequest) GetId() int64 {
 	return 0
 }
 
+func (x *DeleteTaskRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
 type MarkTaskAsDoneRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID задачи, которую нужно отметить как выполненную.
 	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId        int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -622,6 +631,13 @@ func (*MarkTaskAsDoneRequest) Descriptor() ([]byte, []int) {
 func (x *MarkTaskAsDoneRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *MarkTaskAsDoneRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
 	}
 	return 0
 }
@@ -709,11 +725,13 @@ const file_todo_proto_rawDesc = "" +
 	"\x11UpdateTaskRequest\x12&\n" +
 	"\x04task\x18\x01 \x01(\v2\r.todo.v1.TaskB\x03\xe0A\x02R\x04task\"7\n" +
 	"\x12UpdateTaskResponse\x12!\n" +
-	"\x04task\x18\x01 \x01(\v2\r.todo.v1.TaskR\x04task\"(\n" +
+	"\x04task\x18\x01 \x01(\v2\r.todo.v1.TaskR\x04task\"F\n" +
 	"\x11DeleteTaskRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\",\n" +
+	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\x03B\x03\xe0A\x02R\x06userId\"J\n" +
 	"\x15MarkTaskAsDoneRequest\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\";\n" +
+	"\x02id\x18\x01 \x01(\x03B\x03\xe0A\x02R\x02id\x12\x1c\n" +
+	"\auser_id\x18\x02 \x01(\x03B\x03\xe0A\x02R\x06userId\";\n" +
 	"\x16MarkTaskAsDoneResponse\x12!\n" +
 	"\x04task\x18\x01 \x01(\v2\r.todo.v1.TaskR\x04task2\xbe\x03\n" +
 	"\vTaskService\x12G\n" +

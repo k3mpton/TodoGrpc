@@ -62,6 +62,8 @@ func NewServer(serverGrpc *grpc.Server, service Service) {
 	)
 }
 
+// var OldDescriptionAndTitle map[int]string // id and description
+
 func (s *ApiServer) CreateTask(ctx context.Context, r *todopb.CreateTaskRequest) (*todopb.CreateTaskResponse, error) {
 	const op = "server.CreateTask"
 
@@ -154,13 +156,48 @@ func (s *ApiServer) UpdateTask(ctx context.Context, r *todopb.UpdateTaskRequest)
 
 	log.Info("Access, test is Updating! ")
 
-	return &todopb.UpdateTaskResponse{}, nil
+	return &todopb.UpdateTaskResponse{
+		Task: &todopb.Task{
+			Title:       newTitle,
+			Description: newDescript,
+		},
+	}, nil
 }
 
 func (s *ApiServer) DeleteTask(ctx context.Context, r *todopb.DeleteTaskRequest) (*emptypb.Empty, error) {
+	const op = "server.DeleteTask"
+
+	log := slog.With(
+		"op", op,
+		"task_id", r.Id,
+	)
+
+	log.Info("Processing delete task...")
+
+	if err := s.service.DeleteTask(ctx, r.Id, r.UserId); err != nil {
+		return nil, fmt.Errorf("%v: %v", op, err)
+	}
+
+	log.Info("Access! Delete task!")
+
 	return nil, nil
 }
 
 func (s *ApiServer) MarkTaskAsDone(ctx context.Context, r *todopb.MarkTaskAsDoneRequest) (*todopb.MarkTaskAsDoneResponse, error) {
+	const op = "server.MarkTaskAsDone"
+
+	log := slog.With(
+		"op", op,
+		"task_id", r.Id,
+	)
+
+	log.Info("Swapping task false -> true")
+
+	if err := s.service.MarkTaskAsDone(ctx, r.Id, r.UserId); err != nil {
+		return nil, fmt.Errorf("%v: %v", op, err)
+	}
+
+	log.Info("Acess Swap fasle -> true task!")
+
 	return &todopb.MarkTaskAsDoneResponse{}, nil
 }
